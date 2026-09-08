@@ -1,2 +1,3 @@
-# blog-api
+# Blog API
+
 Blog API by Odin curriculum 
