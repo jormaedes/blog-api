@@ -47,4 +47,31 @@ commentActionsRouter.delete('/:commentId', isAuth, async (req, res) => {
 	}
 });
 
+// POST /comments/:commentId/like
+commentActionsRouter.post('/:commentId/like', isAuth, async (req, res) => {
+	try {
+		const { commentId } = req.params;
+		const like = await prisma.commentLike.create({
+			data: { userId: req.user.id, commentId: parseInt(commentId) }
+		});
+		res.status(201).json(like);
+	} catch (error) {
+		if (error.code === "P2002") return res.status(409).json({ message: 'Already liked' });
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
+// DELETE /comments/:commentId/like
+commentActionsRouter.delete('/:commentId/like', isAuth, async (req, res) => {
+	try {
+		const { commentId } = req.params;
+		await prisma.commentLike.delete({
+			where: { userId_commentId: { userId: req.user.id, commentId: parseInt(commentId) } }
+		});
+		res.status(204).send();
+	} catch (error) {
+		if (error.code === "P2025") return res.status(404).json({ message: 'Like not found' });
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
 export default commentActionsRouter;
