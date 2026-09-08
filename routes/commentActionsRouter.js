@@ -35,7 +35,6 @@ commentActionsRouter.delete('/:commentId', isAuth, async (req, res) => {
 		});
 		if (!existing) return res.status(404).json({ message: 'Comment not found' });
 
-		// dono do comentário OU autor do post pode apagar (moderação)
 		const isOwner = existing.userId === req.user.id;
 		const isPostAuthor = existing.post.authorId === req.user.id;
 		if (!isOwner && !isPostAuthor) return res.status(403).json({ message: 'Forbidden' });
