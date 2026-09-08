@@ -1,16 +1,16 @@
 import express from 'express';
-import { validateSignup, handleValidationErrors } from './middleware/validation.js';
+import { validateSignup, validateLogin, handleValidationErrors } from './middleware/validation.js';
 import bcrypt from 'bcryptjs';
 import { prisma } from './lib/prisma.js'
-
+import jwt from 'jsonwebtoken';
 
 const PORT = process.env.PORT || 3300;
 const api = express();
 
 api.use(express.json());
 
-api.post('/signup', validateSignup, handleValidationErrors, async (req, res)=>{
-	const { firstname, lastname, username, password } = req.body;
+api.post('/signup', validateSignup, handleValidationErrors, async (req, res) => {
+	const { firstname, lastname, username, password, user_type } = req.body;
 
 	const hashPassword = await bcrypt.hash(password, parseInt(process.env.NUMBER_SECRET));
 
@@ -20,12 +20,36 @@ api.post('/signup', validateSignup, handleValidationErrors, async (req, res)=>{
 				firstName: firstname,
 				lastName: lastname,
 				username,
-				password: hashPassword
+				password: hashPassword,
+				...(user_type && { userType: user_type })
 			}
 		});
 		res.status(201).json({ message: 'User created successfully', user });
 	} catch (error) {
-		if(error.code === "P2002") return res.status(409).json({message: "Username already exists"})
+		if (error.code === "P2002") return res.status(409).json({ message: "Username already exists" })
+		res.status(500).json({ message: 'Internal server error', error });
+	}
+});
+
+api.post('/login', validateLogin, handleValidationErrors, async (req, res) => {
+	try {
+		const { username, password } = req.body;
+		const user = await prisma.user.findUnique({ where: { username: username } });
+		if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+
+		const match = await bcrypt.compare(password, user.password);
+		if (!match) return res.status(401).json({ message: 'Invalid credentials' })
+		
+		const payload = {
+			id: user.id,
+			firstname: user.firstName,
+			lastname: user.lastName,
+			username: user.username,
+			userType: user.userType
+		};
+		const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' });
+		return res.json({ token: token, user: payload });
+	} catch (error) {
 		res.status(500).json({ message: 'Internal server error', error });
 	}
 });
