@@ -4,7 +4,7 @@ function isAuth(req, res, next) {
 
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (error, user) => {
     if (error) return res.sendStatus(401);
     req.user = { user };
     next();
