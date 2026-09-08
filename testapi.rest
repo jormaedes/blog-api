@@ -99,7 +99,7 @@ Authorization: Bearer {{login.response.body.token}}
 }
 
 ### Publicar/despublicar um post (PATCH parcial)
-PATCH {{baseUrl}}/posts/1/publish
+PATCH {{baseUrl}}/posts/6/publish
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.token}}
 
@@ -108,7 +108,7 @@ Authorization: Bearer {{login.response.body.token}}
 }
 
 ### Deletar um post
-DELETE {{baseUrl}}/posts/1
+DELETE {{baseUrl}}/posts/3
 Authorization: Bearer {{login.response.body.token}}
 
 
@@ -117,13 +117,13 @@ Authorization: Bearer {{login.response.body.token}}
 ### =========================================================
 
 ### Listar comentários de um post
-GET {{baseUrl}}/posts/1/comments
+GET {{baseUrl}}/posts/6/comments
 
 ### Buscar um comentário específico
 GET {{baseUrl}}/posts/1/comments/1
 
 ### Criar um comentário (autenticado)
-POST {{baseUrl}}/posts/1/comments
+POST {{baseUrl}}/posts/6/comments
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.token}}
 
@@ -150,17 +150,17 @@ Authorization: Bearer {{login.response.body.token}}
 ### =========================================================
 
 ### Dar like em um post
-POST {{baseUrl}}/posts/1/like
+POST {{baseUrl}}/posts/4/like
 Authorization: Bearer {{login.response.body.token}}
 
 ### Remover like de um post
-DELETE {{baseUrl}}/posts/1/like
+DELETE {{baseUrl}}/posts/4/like
 Authorization: Bearer {{login.response.body.token}}
 
 ### Dar like em um comentário
-POST {{baseUrl}}/comments/1/like
+POST {{baseUrl}}/comments/2/like
 Authorization: Bearer {{login.response.body.token}}
 
 ### Remover like de um comentário
-DELETE {{baseUrl}}/comments/1/like
+DELETE {{baseUrl}}/comments/2/like
 Authorization: Bearer {{login.response.body.token}}
