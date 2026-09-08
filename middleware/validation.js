@@ -1,7 +1,7 @@
 import { body, validationResult } from "express-validator";
 
 // firstname, lastname, username, password
-const validateSignup = [
+export const validateSignup = [
 	// Campo firstname
 	body('firstname')
 		.trim()
