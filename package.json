@@ -1,0 +1,25 @@
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "Blog API by Odin curriculum",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --env-file=.env app.js",
+    "dev": "node --watch --env-file=.env app.js",
+    "build": "prisma generate && prisma migrate deploy",
+    "build:dev": "prisma generate && prisma migrate dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jormaedes/blog-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/jormaedes/blog-api/issues"
+  },
+  "homepage": "https://github.com/jormaedes/blog-api#readme"
+}
