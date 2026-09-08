@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
 import isAuth from "../middleware/isAuth.js";
 import isAuthor from "../middleware/isAuthor.js";
+import commentRouter from "./comments.js";
 
 const postRouter = Router();
 
@@ -115,5 +116,7 @@ postRouter.delete('/:postId', isAuth, isAuthor, async (req, res) => {
 		res.status(500).json({ message: 'Internal server error' });
 	}
 });
+
+postRouter.use('/:postId/comments', commentRouter);
 
 export default postRouter;
