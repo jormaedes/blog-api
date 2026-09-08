@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './lib/prisma.js'
 import jwt from 'jsonwebtoken';
 import postRouter from './routes/posts.js';
+import userRouter from './routes/users.js';
+import commentActionsRouter from './routes/commentActionsRouter.js';
 
 const PORT = process.env.PORT || 3300;
 const api = express();
@@ -56,6 +58,8 @@ api.post('/login', validateLogin, handleValidationErrors, async (req, res) => {
 });
 
 api.use('/posts', postRouter);
+api.use('/users', userRouter);
+api.use('/comments', commentActionsRouter);
 
 api.listen(PORT, () => {
 	console.log(`API running on port: ${PORT}`);

@@ -39,8 +39,8 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "username": "jdacosta",
-  "password": "jdacostaa"
+  "username": "jormaedes",
+  "password": "123456"
 }
 
 
@@ -53,13 +53,13 @@ GET {{baseUrl}}/users/1
 Authorization: Bearer {{login.response.body.token}}
 
 ### Atualizar dados de um usuário
-PUT {{baseUrl}}/users/1
+PUT {{baseUrl}}/users/14
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.token}}
 
 {
   "firstname": "Jormaedes",
-  "lastname": "Cangovi Editado"
+  "lastname": "Luis Editado"
 }
 
 
@@ -69,9 +69,12 @@ Authorization: Bearer {{login.response.body.token}}
 
 ### Listar todos os posts (públicos/publicados)
 GET {{baseUrl}}/posts
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsImZpcnN0bmFtZSI6Ikpvcm1hZWRlcyIsImxhc3RuYW1lIjoiTHXDrXMiLCJ1c2VybmFtZSI6Impvcm1hZWRlcyIsInVzZXJUeXBlIjoiQVVUSE9SIiwiaWF0IjoxNzg4ODcyNzM5LCJleHAiOjE3ODg4OTA3Mzl9.eBP_sfJyVig8E_kb_a0Wr6qgV8VFYTsPiAzx-p3QGYQ
 
 ### Buscar um post específico
-GET {{baseUrl}}/posts/1
+GET {{baseUrl}}/posts/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsImZpcnN0bmFtZSI6Ikpvcm1hZWRlcyIsImxhc3RuYW1lIjoiTHXDrXMiLCJ1c2VybmFtZSI6Impvcm1hZWRlcyIsInVzZXJUeXBlIjoiQVVUSE9SIiwiaWF0IjoxNzg4ODcyNzM5LCJleHAiOjE3ODg4OTA3Mzl9.eBP_sfJyVig8E_kb_a0Wr6qgV8VFYTsPiAzx-p3QGYQ
+
 
 ### Criar um post (autenticado, só AUTHOR)
 # @name createPost
@@ -80,12 +83,13 @@ Content-Type: application/json
 Authorization: Bearer {{login.response.body.token}}
 
 {
-  "title": "Meu primeiro post",
-  "content": "Conteúdo de teste criado via REST Client."
+  "title": "Meu post falso",
+  "content": "Conteúdo de teste criado via REST Client.",
+  "published": false
 }
 
 ### Atualizar um post (autor dono do post)
-PUT {{baseUrl}}/posts/1
+PUT {{baseUrl}}/posts/2
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.token}}
 
