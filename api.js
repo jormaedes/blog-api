@@ -3,6 +3,7 @@ import { validateSignup, validateLogin, handleValidationErrors } from './middlew
 import bcrypt from 'bcryptjs';
 import { prisma } from './lib/prisma.js'
 import jwt from 'jsonwebtoken';
+import postRouter from './routes/posts.js';
 
 const PORT = process.env.PORT || 3300;
 const api = express();
@@ -53,6 +54,8 @@ api.post('/login', validateLogin, handleValidationErrors, async (req, res) => {
 		res.status(500).json({ message: 'Internal server error', error });
 	}
 });
+
+api.use('/posts', postRouter);
 
 api.listen(PORT, () => {
 	console.log(`API running on port: ${PORT}`);
