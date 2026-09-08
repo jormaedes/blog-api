@@ -1,39 +1,46 @@
 import { Router } from "express";
+import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma.js";
 import isAuth from "../middleware/isAuth.js";
-import isAuthor from "../middleware/isAuthor.js"
+import isAuthor from "../middleware/isAuthor.js";
 
 const postRouter = Router();
 
-// GET /posts
-postRouter.get('/', isAuth, async (req, res) => {
-	try {
-		let posts;
-		if (req.user.userType === 'READER')
-			posts = await prisma.post.findMany({ where: { published: true } });
-		else
-			posts = await prisma.post.findMany();
+function optionalAuth(req, res, next) {
+	const authHeader = req.headers['authorization'];
+	const token = authHeader?.split(' ')[1];
+	if (!token) return next();
 
-		return res.json(posts);
+	jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+		if (!error) req.user = decoded;
+		next();
+	});
+}
+
+// GET /posts
+postRouter.get('/', optionalAuth, async (req, res) => {
+	try {
+		const isAuthorUser = req.user?.userType === 'AUTHOR';
+		const posts = await prisma.post.findMany({
+			where: isAuthorUser ? {} : { published: true }
+		});
+		res.json(posts);
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
 	}
 });
 
 // GET /posts/:postId
-postRouter.get('/:postId', isAuth, async (req, res) => {
+postRouter.get('/:postId', optionalAuth, async (req, res) => {
 	try {
 		const { postId } = req.params;
-		let post;
-		if (req.user.userType === 'AUTHOR')
-			post = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
-		else
-			post = await prisma.post.findFirst({
-				where: {
-					id: parseInt(postId),
-					published: true
-				}
-			})
+		const isAuthorUser = req.user?.userType === 'AUTHOR';
+
+		const post = isAuthorUser
+			? await prisma.post.findUnique({ where: { id: parseInt(postId) } })
+			: await prisma.post.findFirst({ where: { id: parseInt(postId), published: true } });
+
+		if (!post) return res.status(404).json({ message: 'Post not found' });
 		res.json(post);
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
@@ -45,14 +52,9 @@ postRouter.post('/', isAuth, isAuthor, async (req, res) => {
 	try {
 		const { title, content, published } = req.body;
 		const post = await prisma.post.create({
-			data: {
-				authorId: req.user.id,
-				title: title,
-				content: content,
-				published: published
-			}
+			data: { authorId: req.user.id, title, content, published }
 		});
-		res.json(post);
+		res.status(201).json(post);
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
 	}
@@ -62,15 +64,35 @@ postRouter.post('/', isAuth, isAuthor, async (req, res) => {
 postRouter.put('/:postId', isAuth, isAuthor, async (req, res) => {
 	try {
 		const { postId } = req.params;
-
 		const { title, content } = req.body;
+
+		const existing = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
+		if (!existing) return res.status(404).json({ message: 'Post not found' });
+		if (existing.authorId !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
 
 		const post = await prisma.post.update({
 			where: { id: parseInt(postId) },
-			data: {
-				title: title,
-				content: content
-			}
+			data: { title, content }
+		});
+		res.json(post);
+	} catch (error) {
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
+// PATCH /posts/:postId/publish
+postRouter.patch('/:postId/publish', isAuth, isAuthor, async (req, res) => {
+	try {
+		const { postId } = req.params;
+		const { published } = req.body;
+
+		const existing = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
+		if (!existing) return res.status(404).json({ message: 'Post not found' });
+		if (existing.authorId !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
+
+		const post = await prisma.post.update({
+			where: { id: parseInt(postId) },
+			data: { published }
 		});
 		res.json(post);
 	} catch (error) {
@@ -82,12 +104,16 @@ postRouter.put('/:postId', isAuth, isAuthor, async (req, res) => {
 postRouter.delete('/:postId', isAuth, isAuthor, async (req, res) => {
 	try {
 		const { postId } = req.params;
-		const post = await prisma.post.delete({ where: { id: parseInt(postId) } })
+
+		const existing = await prisma.post.findUnique({ where: { id: parseInt(postId) } });
+		if (!existing) return res.status(404).json({ message: 'Post not found' });
+		if (existing.authorId !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
+
+		const post = await prisma.post.delete({ where: { id: parseInt(postId) } });
 		res.json(post);
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
 	}
 });
-
 
 export default postRouter;
