@@ -1,18 +1,27 @@
-import express from 'express';
-import { validateSignup, validateLogin, handleValidationErrors } from './middleware/validation.js';
-import bcrypt from 'bcryptjs';
-import { prisma } from './lib/prisma.js'
-import jwt from 'jsonwebtoken';
-import postRouter from './routes/posts.js';
-import userRouter from './routes/users.js';
-import commentActionsRouter from './routes/commentActionsRouter.js';
 import cors from 'cors';
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { prisma } from './lib/prisma.js'
+import userRouter from './routes/users.js';
+import postRouter from './routes/posts.js';
+import commentActionsRouter from './routes/commentActionsRouter.js';
+import { validateSignup, validateLogin, handleValidationErrors } from './middleware/validation.js';
 
 const PORT = process.env.PORT || 3300;
 const api = express();
 
+const allowedOrigins = [
+	process.env.ADMIN_ORIGIN,
+	process.env.READER_ORIGIN
+];
+
 api.use(express.json());
-api.use(cors({ origin: process.env.CLIENT_ORIGIN || '*' }));
+
+api.use(cors({
+	origin: allowedOrigins,
+	allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 api.post('/signup', validateSignup, handleValidationErrors, async (req, res) => {
 	const { firstname, lastname, username, password, user_type } = req.body;
