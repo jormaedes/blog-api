@@ -1,0 +1,162 @@
+### =========================================================
+### testapi.rest — Testes manuais da API (extensão REST Client)
+### =========================================================
+###
+### Como usar:
+### 1. Instale a extensão "REST Client" (humao.rest-client) no VS Code.
+### 2. Ajuste a variável @baseUrl abaixo se a porta mudar.
+### 3. Rode a requisição de Login primeiro — a resposta é capturada
+###    automaticamente na variável {{login.response.body.token}} e
+###    reutilizada nas rotas protegidas (nada de copiar/colar token à mão).
+### 4. Clique em "Send Request" (aparece acima de cada bloco, logo
+###    abaixo da linha ###) para disparar aquela requisição específica.
+### 5. IDs de exemplo (postId=1, commentId=1, userId=1) são só placeholders —
+###    troque pelos IDs reais gerados no seu banco ao testar.
+###
+### Cada bloco de requisição é separado por "###". Comentários usam "#" ou "//".
+
+@baseUrl = http://localhost:3300
+
+### =========================================================
+### AUTH
+### =========================================================
+
+### Signup — cria um novo usuário
+POST {{baseUrl}}/signup
+Content-Type: application/json
+
+{
+	"firstname": "Joana", 
+	"lastname": "Costa", 
+	"username": "abc", 
+	"password": "jdacosta",
+	"user_type": "AUTHOR"
+}
+
+### Login — retorna o JWT, capturado como {{login.response.body.token}}
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "jdacosta",
+  "password": "jdacostaa"
+}
+
+
+### =========================================================
+### USERS
+### =========================================================
+
+### Buscar um usuário por id
+GET {{baseUrl}}/users/1
+Authorization: Bearer {{login.response.body.token}}
+
+### Atualizar dados de um usuário
+PUT {{baseUrl}}/users/1
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{
+  "firstname": "Jormaedes",
+  "lastname": "Cangovi Editado"
+}
+
+
+### =========================================================
+### POSTS
+### =========================================================
+
+### Listar todos os posts (públicos/publicados)
+GET {{baseUrl}}/posts
+
+### Buscar um post específico
+GET {{baseUrl}}/posts/1
+
+### Criar um post (autenticado, só AUTHOR)
+# @name createPost
+POST {{baseUrl}}/posts
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{
+  "title": "Meu primeiro post",
+  "content": "Conteúdo de teste criado via REST Client."
+}
+
+### Atualizar um post (autor dono do post)
+PUT {{baseUrl}}/posts/1
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{
+  "title": "Título editado",
+  "content": "Conteúdo editado."
+}
+
+### Publicar/despublicar um post (PATCH parcial)
+PATCH {{baseUrl}}/posts/1/publish
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{
+  "published": true
+}
+
+### Deletar um post
+DELETE {{baseUrl}}/posts/1
+Authorization: Bearer {{login.response.body.token}}
+
+
+### =========================================================
+### COMMENTS
+### =========================================================
+
+### Listar comentários de um post
+GET {{baseUrl}}/posts/1/comments
+
+### Buscar um comentário específico
+GET {{baseUrl}}/posts/1/comments/1
+
+### Criar um comentário (autenticado)
+POST {{baseUrl}}/posts/1/comments
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{
+  "content": "Comentário de teste."
+}
+
+### Editar um comentário (autor do comentário)
+PUT {{baseUrl}}/comments/1
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.token}}
+
+{
+  "content": "Comentário editado."
+}
+
+### Deletar um comentário
+DELETE {{baseUrl}}/comments/1
+Authorization: Bearer {{login.response.body.token}}
+
+
+### =========================================================
+### LIKES
+### =========================================================
+
+### Dar like em um post
+POST {{baseUrl}}/posts/1/like
+Authorization: Bearer {{login.response.body.token}}
+
+### Remover like de um post
+DELETE {{baseUrl}}/posts/1/like
+Authorization: Bearer {{login.response.body.token}}
+
+### Dar like em um comentário
+POST {{baseUrl}}/comments/1/like
+Authorization: Bearer {{login.response.body.token}}
+
+### Remover like de um comentário
+DELETE {{baseUrl}}/comments/1/like
+Authorization: Bearer {{login.response.body.token}}
