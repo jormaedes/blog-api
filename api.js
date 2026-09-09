@@ -63,8 +63,8 @@ api.post('/login', validateLogin, handleValidationErrors, async (req, res) => {
 
 		const payload = {
 			id: user.id,
-			firstname: user.firstName,
-			lastname: user.lastName,
+			firstName: user.firstName,
+			lastName: user.lastName,
 			username: user.username,
 			userType: user.userType
 		};

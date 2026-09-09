@@ -59,7 +59,7 @@ Authorization: Bearer {{login.response.body.token}}
 
 {
   "firstname": "Jormaedes",
-  "lastname": "Luis Editado"
+  "lastname": "Luís"
 }
 
 
@@ -69,7 +69,7 @@ Authorization: Bearer {{login.response.body.token}}
 
 ### Listar todos os posts (públicos/publicados)
 GET {{baseUrl}}/posts
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsImZpcnN0bmFtZSI6Ikpvcm1hZWRlcyIsImxhc3RuYW1lIjoiTHXDrXMiLCJ1c2VybmFtZSI6Impvcm1hZWRlcyIsInVzZXJUeXBlIjoiQVVUSE9SIiwiaWF0IjoxNzg4ODcyNzM5LCJleHAiOjE3ODg4OTA3Mzl9.eBP_sfJyVig8E_kb_a0Wr6qgV8VFYTsPiAzx-p3QGYQ
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsImZpcnN0bmFtZSI6Ikpvcm1hZWRlcyIsImxhc3RuYW1lIjoiTHXDrXMiLCJ1c2VybmFtZSI6Impvcm1hZWRlcyIsInVzZXJUeXBlIjoiQVVUSE9SIiwiaWF0IjoxNzg4ODcyNzM5LCJleHAiOjE3ODg4OTA3Mzl9.eBP_sfJyVig8E_kb_a0Wr6qgV8VFYTsPiAzx-p3QGYQ
 
 ### Buscar um post específico
 GET {{baseUrl}}/posts/5
@@ -83,7 +83,7 @@ Content-Type: application/json
 Authorization: Bearer {{login.response.body.token}}
 
 {
-  "title": "Meu post falso",
+  "title": "Não publicado 2",
   "content": "Conteúdo de teste criado via REST Client.",
   "published": false
 }
