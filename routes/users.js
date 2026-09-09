@@ -5,6 +5,27 @@ import isAuth from "../middleware/isAuth.js";
 
 const userRouter = Router();
 
+// GET /users/me
+userRouter.get('/me', isAuth, async (req, res) => {
+	try {
+		const user = await prisma.user.findUnique({
+			where: { id: req.user.id },
+			select: {
+				id: true,
+				firstName: true,
+				lastName: true,
+				username: true,
+				userType: true,
+			}
+		});
+
+		if (!user) return res.status(404).json({ message: 'User not found' });
+		res.json(user);
+	} catch (error) {
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
 // GET /users/:id
 userRouter.get('/:id', isAuth, async (req, res) => {
 	try {
