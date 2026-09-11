@@ -23,7 +23,8 @@ postRouter.get('/', optionalAuth, async (req, res) => {
 	try {
 		const isAuthorUser = req.user?.userType === 'AUTHOR';
 		const posts = await prisma.post.findMany({
-			where: isAuthorUser ? {} : { published: true }
+			where: isAuthorUser ? {} : { published: true },
+			orderBy: {timestamp: 'asc'}
 		});
 		res.json(posts);
 	} catch (error) {
