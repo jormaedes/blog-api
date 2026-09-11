@@ -57,15 +57,24 @@ userRouter.put('/:id', isAuth, async (req, res) => {
 			return res.status(403).json({ message: 'Forbidden' });
 		}
 
-		const { firstname, lastname, password } = req.body;
+		const {
+			firstname,
+			lastname,
+			username,
+			password,
+		} = req.body;
 
 		const data = {
 			...(firstname && { firstName: firstname }),
 			...(lastname && { lastName: lastname }),
+			...(username && { username }),
 		};
 
 		if (password) {
-			data.password = await bcrypt.hash(password, parseInt(process.env.NUMBER_SECRET));
+			data.password = await bcrypt.hash(
+				password,
+				parseInt(process.env.NUMBER_SECRET)
+			);
 		}
 
 		const user = await prisma.user.update({
@@ -77,14 +86,24 @@ userRouter.put('/:id', isAuth, async (req, res) => {
 				lastName: true,
 				username: true,
 				userType: true,
-			}
+			},
 		});
 
 		res.json(user);
 	} catch (error) {
-		if (error.code === "P2025") return res.status(404).json({ message: 'User not found' });
-		res.status(500).json({ message: 'Internal server error' });
+		if (error.code === "P2025") {
+			return res.status(404).json({ message: 'User not found' });
+		}
+
+		if (error.code === "P2002") {
+			return res
+				.status(409)
+				.json({ message: 'Username already exists' });
+		}
+
+		res.status(500).json({
+			message: 'Internal server error',
+		});
 	}
 });
-
 export default userRouter;
