@@ -19,12 +19,18 @@ function optionalAuth(req, res, next) {
 }
 
 // GET /posts
+
 postRouter.get('/', optionalAuth, async (req, res) => {
 	try {
 		const isAuthorUser = req.user?.userType === 'AUTHOR';
+
 		const posts = await prisma.post.findMany({
 			where: isAuthorUser ? {} : { published: true },
-			orderBy: { timestamp: 'asc' },
+
+			orderBy: {
+				timestamp: 'desc'
+			},
+
 			include: {
 				author: {
 					select: {
@@ -32,12 +38,42 @@ postRouter.get('/', optionalAuth, async (req, res) => {
 						firstName: true,
 						lastName: true
 					}
+				},
+
+				_count: {
+					select: {
+						likes: true
+					}
 				}
 			}
 		});
-		res.json(posts);
+
+		const postsWithLikes = await Promise.all(
+			posts.map(async (post) => {
+				const likedByMe = req.user
+					? await prisma.postLike.findUnique({
+						where: {
+							userId_postId: {
+								userId: req.user.id,
+								postId: post.id
+							}
+						}
+					})
+					: null;
+
+				return {
+					...post,
+					likesCount: post._count.likes,
+					likedByMe: Boolean(likedByMe)
+				};
+			})
+		);
+
+		res.json(postsWithLikes);
 	} catch (error) {
-		res.status(500).json({ message: 'Internal server error' });
+		res.status(500).json({
+			message: 'Internal server error'
+		});
 	}
 });
 
@@ -117,7 +153,21 @@ postRouter.post('/', isAuth, isAuthor, async (req, res) => {
 	try {
 		const { title, content, published } = req.body;
 		const post = await prisma.post.create({
-			data: { authorId: req.user.id, title, content, published }
+			data: { authorId: req.user.id, title, content, published },
+			include: {
+				author: {
+					select: {
+						username: true,
+						firstName: true,
+						lastName: true
+					}
+				},
+				_count: {
+					select: {
+						likes: true
+					}
+				}
+			}
 		});
 		res.status(201).json(post);
 	} catch (error) {
@@ -137,8 +187,31 @@ postRouter.put('/:postId', isAuth, isAuthor, async (req, res) => {
 
 		const post = await prisma.post.update({
 			where: { id: parseInt(postId) },
-			data: { title, content }
+			data: { title, content },
+			include: {
+				author: {
+					select: {
+						username: true,
+						firstName: true,
+						lastName: true
+					}
+				},
+				_count: {
+					select: {
+						likes: true
+					}
+				}
+			}
 		});
+		const likedByMe = await prisma.postLike.findUnique({
+			where: {
+				userId_postId: {
+					userId: req.user.id,
+					postId: parseInt(postId)
+				}
+			}
+		});
+		post.likedByMe = Boolean(likedByMe);
 		res.json(post);
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
@@ -157,8 +230,31 @@ postRouter.patch('/:postId/publish', isAuth, isAuthor, async (req, res) => {
 
 		const post = await prisma.post.update({
 			where: { id: parseInt(postId) },
-			data: { published }
+			data: { published },
+			include: {
+				author: {
+					select: {
+						username: true,
+						firstName: true,
+						lastName: true
+					}
+				},
+				_count: {
+					select: {
+						likes: true
+					}
+				}
+			}
 		});
+		const likedByMe = await prisma.postLike.findUnique({
+			where: {
+				userId_postId: {
+					userId: req.user.id,
+					postId: parseInt(postId)
+				}
+			}
+		});
+		post.likedByMe = Boolean(likedByMe);
 		res.json(post);
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
