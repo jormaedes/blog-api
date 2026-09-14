@@ -3,14 +3,26 @@ import { prisma } from "../lib/prisma.js";
 import isAuth from "../middleware/isAuth.js";
 
 // precisa disso pra ver o :postId do router pai
-const commentRouter = Router({ mergeParams: true }); 
+const commentRouter = Router({ mergeParams: true });
 
 // GET /posts/:postId/comments
 commentRouter.get('/', async (req, res) => {
 	try {
 		const { postId } = req.params;
 		const comments = await prisma.comment.findMany({
-			where: { postId: parseInt(postId) }
+			where: {
+				postId: parseInt(postId)
+			},
+			include: {
+				user: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						username: true
+					}
+				}
+			}
 		});
 		res.json(comments);
 	} catch (error) {
