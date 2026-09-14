@@ -35,7 +35,17 @@ commentRouter.get('/:commentId', async (req, res) => {
 	try {
 		const { postId, commentId } = req.params;
 		const comment = await prisma.comment.findFirst({
-			where: { id: parseInt(commentId), postId: parseInt(postId) }
+			where: { id: parseInt(commentId), postId: parseInt(postId) },
+			include: {
+				user: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						username: true
+					}
+				}
+			}
 		});
 		if (!comment) return res.status(404).json({ message: 'Comment not found' });
 		res.json(comment);
