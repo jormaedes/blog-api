@@ -49,9 +49,7 @@ postRouter.get('/:postId', optionalAuth, async (req, res) => {
 
 		const post = isAuthorUser
 			? await prisma.post.findUnique({
-				where: {
-					id: parseInt(postId)
-				},
+				where: { id: parseInt(postId) },
 				include: {
 					author: {
 						select: {
@@ -68,10 +66,7 @@ postRouter.get('/:postId', optionalAuth, async (req, res) => {
 				}
 			})
 			: await prisma.post.findFirst({
-				where: {
-					id: parseInt(postId),
-					published: true
-				},
+				where: { id: parseInt(postId), published: true },
 				include: {
 					author: {
 						select: {
