@@ -116,7 +116,7 @@ commentRouter.post('/', isAuth, async (req, res) => {
 	}
 });
 
-// GET /comments/recent
+// GET /posts/:postId/comments/recent
 commentRouter.get('/recent', isAuth, async (req, res) => {
 	try {
 		const comments = await prisma.comment.findMany({
@@ -127,7 +127,6 @@ commentRouter.get('/recent', isAuth, async (req, res) => {
 			include: {
 				user: {
 					select: {
-						id: true,
 						username: true,
 						firstName: true,
 						lastName: true
@@ -147,12 +146,16 @@ commentRouter.get('/recent', isAuth, async (req, res) => {
 			}
 		});
 
-		const commentsWithLikes = comments.map((comment) => ({
-			...comment,
+		const recentComments = comments.map((comment) => ({
+			id: comment.id,
+			content: comment.content,
+			timestamp: comment.timestamp,
+			user: comment.user,
+			post: comment.post,
 			likesCount: comment._count.likes
 		}));
 
-		res.json(commentsWithLikes);
+		res.json(recentComments);
 	} catch (error) {
 		console.error(error);
 
