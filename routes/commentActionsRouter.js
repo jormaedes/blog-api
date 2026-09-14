@@ -49,7 +49,8 @@ commentActionsRouter.delete('/:commentId', isAuth, async (req, res) => {
 		const isPostAuthor = existing.post.authorId === req.user.id;
 		if (!isOwner && !isPostAuthor) return res.status(403).json({ message: 'Forbidden' });
 
-		await prisma.comment.delete({ where: { id: parseInt(commentId) }, 
+		await prisma.comment.delete({
+			where: { id: parseInt(commentId) },
 			include: {
 				user: {
 					select: {
@@ -92,6 +93,55 @@ commentActionsRouter.delete('/:commentId/like', isAuth, async (req, res) => {
 	} catch (error) {
 		if (error.code === "P2025") return res.status(404).json({ message: 'Like not found' });
 		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
+// GET /comments/recent
+commentActionsRouter.get('/recent', isAuth, async (req, res) => {
+	try {
+		const comments = await prisma.comment.findMany({
+			orderBy: {
+				timestamp: 'desc'
+			},
+			take: 5,
+			include: {
+				user: {
+					select: {
+						username: true,
+						firstName: true,
+						lastName: true
+					}
+				},
+				post: {
+					select: {
+						id: true,
+						title: true
+					}
+				},
+				_count: {
+					select: {
+						likes: true
+					}
+				}
+			}
+		});
+
+		const recentComments = comments.map((comment) => ({
+			id: comment.id,
+			content: comment.content,
+			timestamp: comment.timestamp,
+			user: comment.user,
+			post: comment.post,
+			likesCount: comment._count.likes
+		}));
+
+		res.json(recentComments);
+	} catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			message: 'Internal server error'
+		});
 	}
 });
 export default commentActionsRouter;
