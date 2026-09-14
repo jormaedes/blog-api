@@ -65,6 +65,7 @@ postRouter.get('/', optionalAuth, async (req, res) => {
 				return {
 					...post,
 					likesCount: post._count.likes,
+					commentsCount: post._count.comments,
 					likedByMe: Boolean(likedByMe)
 				};
 			})
