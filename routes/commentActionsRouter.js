@@ -16,7 +16,17 @@ commentActionsRouter.put('/:commentId', isAuth, async (req, res) => {
 
 		const comment = await prisma.comment.update({
 			where: { id: parseInt(commentId) },
-			data: { content }
+			data: { content },
+			include: {
+				user: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						username: true
+					}
+				}
+			}
 		});
 		res.json(comment);
 	} catch (error) {
