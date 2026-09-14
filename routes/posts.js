@@ -39,13 +39,47 @@ postRouter.get('/:postId', optionalAuth, async (req, res) => {
 		const isAuthorUser = req.user?.userType === 'AUTHOR';
 
 		const post = isAuthorUser
-			? await prisma.post.findUnique({ where: { id: parseInt(postId) } })
-			: await prisma.post.findFirst({ where: { id: parseInt(postId), published: true } });
+			? await prisma.post.findUnique({
+				where: {
+					id: parseInt(postId)
+				},
+				include: {
+					author: {
+						select: {
+							username: true,
+							firstName: true,
+							lastName: true
+						}
+					}
+				}
+			})
+			: await prisma.post.findFirst({
+				where: {
+					id: parseInt(postId),
+					published: true
+				},
+				include: {
+					author: {
+						select: {
+							username: true,
+							firstName: true,
+							lastName: true
+						}
+					}
+				}
+			});
 
-		if (!post) return res.status(404).json({ message: 'Post not found' });
+		if (!post) {
+			return res.status(404).json({
+				message: 'Post not found'
+			});
+		}
+
 		res.json(post);
 	} catch (error) {
-		res.status(500).json({ message: 'Internal server error' });
+		res.status(500).json({
+			message: 'Internal server error'
+		});
 	}
 });
 
