@@ -39,7 +39,18 @@ commentActionsRouter.delete('/:commentId', isAuth, async (req, res) => {
 		const isPostAuthor = existing.post.authorId === req.user.id;
 		if (!isOwner && !isPostAuthor) return res.status(403).json({ message: 'Forbidden' });
 
-		await prisma.comment.delete({ where: { id: parseInt(commentId) } });
+		await prisma.comment.delete({ where: { id: parseInt(commentId) }, 
+			include: {
+				user: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						username: true
+					}
+				}
+			}
+		});
 		res.status(204).send();
 	} catch (error) {
 		res.status(500).json({ message: 'Internal server error' });
