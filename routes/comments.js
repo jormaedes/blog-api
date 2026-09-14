@@ -9,6 +9,7 @@ const commentRouter = Router({ mergeParams: true });
 commentRouter.get('/', async (req, res) => {
 	try {
 		const { postId } = req.params;
+
 		const comments = await prisma.comment.findMany({
 			where: {
 				postId: parseInt(postId)
@@ -21,12 +22,41 @@ commentRouter.get('/', async (req, res) => {
 						lastName: true,
 						username: true
 					}
+				},
+				_count: {
+					select: {
+						likes: true
+					}
 				}
 			}
 		});
-		res.json(comments);
+
+		const commentsWithLikes = await Promise.all(
+			comments.map(async (comment) => {
+				const likedByMe = req.user
+					? await prisma.commentLike.findUnique({
+						where: {
+							userId_commentId: {
+								userId: req.user.id,
+								commentId: comment.id
+							}
+						}
+					})
+					: null;
+
+				return {
+					...comment,
+					likesCount: comment._count.likes,
+					likedByMe: Boolean(likedByMe)
+				};
+			})
+		);
+
+		res.json(commentsWithLikes);
 	} catch (error) {
-		res.status(500).json({ message: 'Internal server error' });
+		res.status(500).json({
+			message: 'Internal server error'
+		});
 	}
 });
 
