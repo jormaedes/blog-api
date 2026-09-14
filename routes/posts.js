@@ -42,7 +42,8 @@ postRouter.get('/', optionalAuth, async (req, res) => {
 
 				_count: {
 					select: {
-						likes: true
+						likes: true,
+						comments: true
 					}
 				}
 			}
