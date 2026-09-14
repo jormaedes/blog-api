@@ -116,4 +116,50 @@ commentRouter.post('/', isAuth, async (req, res) => {
 	}
 });
 
+// GET /comments/recent
+commentRouter.get('/recent', isAuth, async (req, res) => {
+	try {
+		const comments = await prisma.comment.findMany({
+			orderBy: {
+				timestamp: 'desc'
+			},
+			take: 5,
+			include: {
+				user: {
+					select: {
+						id: true,
+						username: true,
+						firstName: true,
+						lastName: true
+					}
+				},
+				post: {
+					select: {
+						id: true,
+						title: true
+					}
+				},
+				_count: {
+					select: {
+						likes: true
+					}
+				}
+			}
+		});
+
+		const commentsWithLikes = comments.map((comment) => ({
+			...comment,
+			likesCount: comment._count.likes
+		}));
+
+		res.json(commentsWithLikes);
+	} catch (error) {
+		console.error(error);
+
+		res.status(500).json({
+			message: 'Internal server error'
+		});
+	}
+});
+
 export default commentRouter;
