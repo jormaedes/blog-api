@@ -26,7 +26,7 @@ POST {{baseUrl}}/signup
 Content-Type: application/json
 
 {
-	"firstname": "Joana", 
+	"firstname": "jlis", 
 	"lastname": "Costa", 
 	"username": "abc", 
 	"password": "jdacosta",
