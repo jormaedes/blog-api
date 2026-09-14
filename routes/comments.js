@@ -58,6 +58,16 @@ commentRouter.post('/', isAuth, async (req, res) => {
 				content,
 				userId: req.user.id,
 				postId: parseInt(postId)
+			},
+			include: {
+				user: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						username: true
+					}
+				}
 			}
 		});
 		res.status(201).json(comment);
