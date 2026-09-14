@@ -301,15 +301,15 @@ Request:
 
 ```json
 {
-  "firstname": "John",
-  "lastname": "Doe",
+  "firstName": "John",
+  "lastName": "Doe",
   "username": "johndoe",
   "password": "secret123",
-  "user_type": "AUTHOR"
+  "userType": "AUTHOR"
 }
 ```
 
-`user_type` is optional.
+`userType` is optional.
 
 If omitted, the user is created as:
 
