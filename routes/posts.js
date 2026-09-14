@@ -59,6 +59,11 @@ postRouter.get('/:postId', optionalAuth, async (req, res) => {
 							firstName: true,
 							lastName: true
 						}
+					},
+					_count: {
+						select: {
+							likes: true
+						}
 					}
 				}
 			})
@@ -74,6 +79,11 @@ postRouter.get('/:postId', optionalAuth, async (req, res) => {
 							firstName: true,
 							lastName: true
 						}
+					},
+					_count: {
+						select: {
+							likes: true
+						}
 					}
 				}
 			});
@@ -84,7 +94,22 @@ postRouter.get('/:postId', optionalAuth, async (req, res) => {
 			});
 		}
 
-		res.json(post);
+		const likedByMe = req.user
+			? await prisma.postLike.findUnique({
+				where: {
+					userId_postId: {
+						userId: req.user.id,
+						postId: parseInt(postId)
+					}
+				}
+			})
+			: null;
+
+		res.json({
+			...post,
+			likesCount: post._count.likes,
+			likedByMe: Boolean(likedByMe)
+		});
 	} catch (error) {
 		res.status(500).json({
 			message: 'Internal server error'
