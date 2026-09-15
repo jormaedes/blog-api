@@ -39,8 +39,8 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "username": "jormaedes",
-  "password": "123456"
+  "username": "jdacosta",
+  "password": "jdacosta"
 }
 
 
