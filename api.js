@@ -7,6 +7,7 @@ import userRouter from './routes/users.js';
 import postRouter from './routes/posts.js';
 import commentActionsRouter from './routes/commentActionsRouter.js';
 import { validateSignup, validateLogin, handleValidationErrors } from './middleware/validation.js';
+import 'dotenv/config.js';
 
 const PORT = process.env.PORT || 3300;
 const api = express();
