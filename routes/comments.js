@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import isAuth from "../middleware/isAuth.js";
+import optionalAuth from "../middleware/optionalAuth.js";
 
 // precisa disso pra ver o :postId do router pai
 const commentRouter = Router({ mergeParams: true });
 
 // GET /posts/:postId/comments
-commentRouter.get('/', isAuth, async (req, res) => {
+commentRouter.get('/', optionalAuth, async (req, res) => {
 	try {
 		const { postId } = req.params;
 
