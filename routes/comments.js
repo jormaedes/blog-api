@@ -6,13 +6,16 @@ import isAuth from "../middleware/isAuth.js";
 const commentRouter = Router({ mergeParams: true });
 
 // GET /posts/:postId/comments
-commentRouter.get('/', async (req, res) => {
+commentRouter.get('/', isAuth, async (req, res) => {
 	try {
 		const { postId } = req.params;
 
 		const comments = await prisma.comment.findMany({
 			where: {
 				postId: parseInt(postId)
+			},
+			orderBy: {
+				timestamp: 'desc'
 			},
 			include: {
 				user: {
