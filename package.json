@@ -6,9 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --env-file=.env api.js",
-    "dev": "node --watch --env-file=.env api.js",
-    "build:prod": "prisma generate && prisma migrate deploy",
-    "build:dev": "prisma generate && prisma migrate dev"
+    "dev": "node --watch --env-file=.env api.js"
   },
   "repository": {
     "type": "git",
